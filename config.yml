@@ -1,0 +1,97 @@
+# Network
+encoder_type:
+decoder_type: AttnDecoder #InputFeedDecoder, AttnDecoder, MHAttnDecoder
+rnn_type: GRU #RNN, LSTM, GRU # paper is GRU # used to be LSTM, but I found it cannot support LSTM, since LSTM will output two hidden state vectors
+bidirectional: true  # as paper
+embedding_size: 620 # not mentioned in paper 
+hidden_size: 620  # paper is 1024
+latent_size: 620 # paper is 1024
+num_layers: 1 # not mentioned in paper 
+dropout: 0.3 # not mentioned in paper (indicates how many number will be zero in expectation)
+atten_model: general #general, dot, none
+
+# gmm
+vae_type: 8 # 0:seq2seq 1:cvae 2:vae 3:gmm(only ST-vae) 4:gmm(ST-vae and TT-vae) 5:AE 6:seq2seq+AE 7:seq2seq+AE+Memory(MultiLoss)
+only_rm_variantional_path: 0 # 0: our model with VAE 1: our model with AE
+embedding_type: 1 # 1:[all spread: 1)src_enc 2)tgt_enc 3)tgt_dec] 2:[share enc: 1)src_enc,tgt_enc 2)tgt_dec] 3:[share tgt: 1)src_enc 2)tgt_enc,tgt_dec] 4:[all share: 1)src_enc,tgt_enc,tgt_dec (not implement)]
+debug_mode: 3
+save_z_and_sample: 0 # 0: no save 1: save src only 2: save tgt only 3: save both src and tgt 4: (see code) 5: (see code)
+use_gmm_output_fc: 0
+use_normalize_in_gmm: 0
+variance_memory_type: 5 # 0:Recog:target,memory_target Prior:memory_target use VAE loss  1:Recog:target Prior:memory_target use VAE loss 2:Recog:real_target,memory_target Prior:memory_target without VAE loss 3:Recog:real_target Prior:memory_target without VAE loss 4.Recog:target, memory_target Prior:memory_target, VAE+MultiReconstructLoss 5.Recog:target,memory_target Prior:memory_target, VAE+MultiReconstructLoss
+
+# latent
+# when merge source and target
+src_tgt_latent_merge_type: 2 # 0:concate 1:sum up 2:concate+FC
+use_src_or_tgt_attention: 0 # 0:use source hidden as attention 1:target hidden as attention 2:merge them by summing up 3:concate
+get_memory_target_type: 1 # 0: weighted sum up all memory 1: select most the similar one K(K>1): select top K simiar ones
+lambda_for_memory_loss: 10 # 0: no memory loss 1: equal contribution 
+lambda_for_kl_loss: 0 # 0: no kl loss 1: equal contribution 
+similarity_threshold_for_itself: 0 # if sim(A,B) < threshold, treat A and B as identity
+freeze_modules_list: ""
+sim_type_for_memory_search: "dot_product" # cos_sim or dot_product
+s2saememory_mode_before_first_cluster: 0 #0: pass, do not train 1: use online target encoder to train 2: random a cluster to train 
+kl_anneal_total_epoch: 0 #0:  disable
+kl_anneal_total_step: 0 #0: disable
+print_per_step: 10000000000
+source_dropout_rate: 0 #0: no dropout 1:dropout all
+source_dropout_type: 0 #0: set source to all zeros before merge 1:skip merge
+
+cvae_print_reconstruct_loss: 0 #0: default 1: when cvae, print reconstruct loss
+                                                                    
+# Predict
+inference_by_posterior: 0 #0: Normal inference(default) 1:inference_by_posterior
+
+# Doc2Vec
+topK_for_doc2vec_search: 1
+sim_type_for_doc2vec_search: "cosine" # cos_sim or dot_product
+doc2vec_model_file: "output_models/doc2vec_model_config/model_t2e512w10_tgt.bin" 
+
+# cluster
+#training_data_sample_rate_for_cluster: 0 # should be 0~1. 0 means none ; 1 means all 
+#training_data_sample_rate_for_cluster: 0.01 # should be 0~1. 0 means none ; 1 means all 
+training_data_sample_rate_for_cluster: 0.02 # should be 0~1. 0 means none ; 1 means all 
+#training_data_sample_rate_for_cluster: 0.5 # should be 0~1. 0 means none ; 1 means all 
+cluster_num: 1000 # 0: means do not cluster
+cluster_num_gmm: 0 # 0: means do not cluster
+lambda_for_nn_and_kmeans: 0 # 0: all nn 1: equal contribution
+kmeans_max_iter: 30 # default is 300(small data)
+cluster_per_step: 100000000 # 100000000(very large): means do not cluster at step level (default: 0)
+cluster_per_epoch: 1 # 0: means do not cluster at epoch level (default: 1)
+cluster_param_in_cuda: 1 # 0: store and calculate in cpu 1: in gpu
+train_collect_clusterdata_sync: 1 #1:sync, train one and save one 0:async, train all then fix param then save all
+
+src_max_len: 50 # not mentioned in paper 
+tgt_max_len: 50 # not mentioned in paper 
+merge_vocab: True # not mentioned in paper 
+
+merged_vocab_size: 44100 # as paper
+src_vocab_size: 43600 # 43400 # as paper
+tgt_vocab_size: 20600 # 20500 # as paper
+
+
+# Misc
+use_cuda: true
+random_seed: 3435
+save_model_mode: 2 # 0: whole model 1: by layers 2: whole model and then by layers
+load_model_mode: 0 # 0: whole model 1: by layers [when need pretrain in training]
+load_model_mode_for_inference: 0 # 0: whole model 1: by layers [when inference]
+
+# Train
+optim_method: adam #adadelta, adam, sgd # as paper
+max_grad_norm: 5 # as paper
+learning_rate: 0.0001 # as paper
+learning_rate_decay: 0.9 # not mentioned in paper 
+start_decay_at: 8 # not mentioned in paper 
+weight_decay: 0.000001 #  weight decay(L2 penalty)
+num_train_epochs: 50
+steps_per_stats: 100
+steps_per_eval: 1000
+train_batch_size: 56 # paper is 128
+train_shard_size: 32
+start_epoch_at: 
+
+valid_batch_size: 32
+
+
+out_dir: #./out_dir # path to save model
